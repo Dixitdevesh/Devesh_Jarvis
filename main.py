@@ -3,7 +3,7 @@ import webbrowser
 import pyttsx3
 import datetime,time,csv,random,musiclibrary,os,requests
 from getpass import getpass
-n=0
+x=False
 tell=pyttsx3.init()
 r=sr.Recognizer()
 
@@ -14,13 +14,18 @@ def listen():
      try: 
         with sr.Microphone() as source:
                 print("Listening....")
-                audio=r.listen(source,timeout=8,phrase_time_limit=15)
+                audio=r.listen(source,timeout=12,phrase_time_limit=15)
                 print("Recognizing...")
                 command=r.recognize_google(audio)
                 print(f"You Said:{command}")
                 return command
      except Exception as e :
-         process(listen())
+        if x==False:
+            process(listen())
+        elif x==True:
+            st()
+        
+
 def menu():
     print("  Jarvis Menu")
     print("  ------------")
@@ -84,15 +89,15 @@ def name():
              print("Error" ,e)
 
 def login():
-    speak("Welcome to Jarvis. Do you have an account? Say yes to log in or no to register.")
+    speak("Welcome to Jarvis. Do you have an account? Say yes i have a to log in or no i don't hava any to register.")
     response = listen()
-    if "yes" in response.lower():
+    if "yes" in response.lower() :
         try:
            return authenticate_user()
         except Exception as e:
             print("Some Error occured")
             login()
-    elif "no" in response.lower():
+    elif "no" in response.lower() :
         try:
             return register_user()
         except Exception as e:
@@ -125,13 +130,14 @@ def authenticate_user():
 
 def register_user():
     try:
-        with open("users.csv", "a", newline='') as f:
+        with open("users.csv", "a",newline='') as f:
             writer = csv.writer(f)
             speak("Please tell us  a username.")
             username = input("Enter Username :")
             speak("Please Create A password.")
             password = getpass("Enter your Password:")
-            writer.writerow([username, password])
+            writer.writerow([username,password])
+            f.flush()
             speak("Registration successful. You can now log in.")
             return authenticate_user()
     except Exception as e:
@@ -504,35 +510,36 @@ def process(c):
           print("  13. Close Application - Close an application on your computer")
           print("  19. Exit - Exit Jarvis")
     
+def st():
+        if login()==True:
+            x=True
+            name()
+            while True:
+                try:
+                    print("Showing Menu Please Wait...")
+                    speak("Showing Menu Please Wait...")
+                    menu()  
+                    
+                    while True:
+                        print("Taking Command, Please Speak ")
+                        command = listen()
+                        
+                        if command.lower() == "exit" or "stop" in command.lower():
+                            print("Exiting.....")
+                            speak("Exiting......")
+                            break 
+                        else:
+                            process(command)
+                                    
+                except Exception as e:
+                    print("No Internet Connection",e)
+                    
         
             
 
 if __name__=='__main__':
     print("Initializing Jarvis...")
     speak("Initializing   Jarvis ......")
-    if login()==True:
-
-        name()
-        while True:
-            try:
-                print("Showing Menu Please Wait...")
-                speak("Showing Menu Please Wait...")
-                menu()  
-                
-                while True:
-                    print("Taking Command, Please Speak ")
-                    command = listen()
-                    
-                    if command.lower() == "exit" or "stop" in command.lower():
-                        print("Exiting.....")
-                        speak("Exiting......")
-                        break 
-                    else:
-                        process(command)
-                                  
-            except Exception as e:
-                print("No Internet Connection",e)
-                
-           
+    st()           
 
         
